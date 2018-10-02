@@ -1,0 +1,16 @@
+To run the code:
+1. Use javac RunThis.java
+2. Use java RunThis Threadnum_Bakery Request_of_each_thread Threadnum_Tornament Request_of_each_thread 
+NOTE: Request_of_each_thread is request numeber for each thread
+e.g: 
+dijin$ java RunThis 8 125 8 125
+bakery match with thread:8 each request:125
+Total time bakery taken: 1ms
+tournament match with thread:8 each request:125
+Total time tournament taken: 2ms
+ dijin$ java RunThis 8 1250 8 1250
+bakery match with thread:8 each request:1250
+Total time bakery taken: 7ms
+tournament match with thread:8 each request:1250
+Total time tournament taken: 9ms
+ 

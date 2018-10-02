@@ -1,0 +1,197 @@
+95:question 1
+package assign2;
+
+public class SavingAccount {
+
+	private double balance=10000;
+	public void set(double balance)
+	{
+		this.balance = balance;
+	}
+	public synchronized void deposit(double k) 
+	{
+		this.balance += k;
+		System.out.println("balance "+k+"added: "+this.balance);
+		this.notify();
+	}
+	public synchronized void withdraw(double k) 
+	{
+		while(balance<k)
+		{
+			try {
+				this.wait();
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		this.balance -= k;
+		System.out.println("balance "+k+"reduced: "+this.balance);
+		this.notify();
+	}
+	static class AccThread implements Runnable
+	{
+		SavingAccount account;
+		String action;
+		double amount;
+		public AccThread(SavingAccount account,String action,double amount)
+		{
+			this.account = account;
+			this.action = action;
+			this.amount = amount;
+		}
+		public void setAction(String action)
+		{
+			this.action = action;
+		}
+		public void setAccount(SavingAccount account)
+		{
+			this.account = account;
+		}
+		public void setAmount(double amount)
+		{
+			this.amount = amount;
+		}
+		@Override
+		public void run() {
+			// TODO Auto-generated method stub
+			if(action.equals("deposit"))
+			{
+				account.deposit(amount);
+			}
+			else if(action.equals("withdraw"))
+			{
+				account.withdraw(amount);
+			}
+		}
+		
+	}
+	public static void test(int thread_number)
+	{
+		SavingAccount sa = new SavingAccount();
+		Thread []tds=new Thread[thread_number];
+		for(int i=0;i<thread_number;i++)
+		{
+			String temp=Math.random()>0.8?"deposit":"withdraw";//test the method with more withdraw
+			System.out.println(temp);
+			tds[i]=new Thread(new AccThread(sa,temp,3000));
+		}
+		for(int i=0;i<thread_number;i++)
+		{
+			tds[i].start();
+		}
+		for(int i=0;i<thread_number;i++)
+		{
+			try {
+				tds[i].join();
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+	}
+	public static void main(String[] args) {
+		// TODO Auto-generated method stub
+		test(20);
+	}
+
+}
+//=================
+package assign2;
+
+public class SavingAccount {
+
+	private double balance=10000;
+	private double priority=0;
+	public void set(double balance)
+	{
+		this.balance = balance;
+	}
+	public synchronized void deposit(double k,SavingAccount acc) 
+	{
+		acc.balance += k;
+		System.out.println("balance "+k+"added: "+acc.balance);
+		acc.notify();
+	}
+	public synchronized void withdraw(double k,SavingAccount acc) 
+	{
+		while(acc.balance<k)
+		{
+			try {
+				acc.wait();
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		acc.balance -= k;
+		System.out.println("balance "+k+"reduced: "+acc.balance);
+		acc.notify();
+	}
+	static class AccThread implements Runnable
+	{
+		SavingAccount account;
+		String action;
+		double amount;
+		public AccThread(SavingAccount account,String action,double amount)
+		{
+			this.account = account;
+			this.action = action;
+			this.amount = amount;
+		}
+		public void setAction(String action)
+		{
+			this.action = action;
+		}
+		public void setAccount(SavingAccount account)
+		{
+			this.account = account;
+		}
+		public void setAmount(double amount)
+		{
+			this.amount = amount;
+		}
+		@Override
+		public void run() {
+			// TODO Auto-generated method stub
+			if(action.equals("deposit"))
+			{
+				account.deposit(amount,account);
+			}
+			else if(action.equals("withdraw"))
+			{
+				account.withdraw(amount,account);
+			}
+		}
+		
+	}
+	public static void test(int thread_number)
+	{
+		SavingAccount sa = new SavingAccount();
+		Thread []tds=new Thread[thread_number];
+		for(int i=0;i<thread_number;i++)
+		{
+			String temp=Math.random()>0.8?"deposit":"withdraw";//test the method with more withdraw
+			System.out.println(temp);
+			tds[i]=new Thread(new AccThread(sa,temp,3000));
+		}
+		for(int i=0;i<thread_number;i++)
+		{
+			tds[i].start();
+		}
+		for(int i=0;i<thread_number;i++)
+		{
+			try {
+				tds[i].join();
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+	}
+	public static void main(String[] args) {
+		// TODO Auto-generated method stub
+		test(20);
+	}
+
+}
