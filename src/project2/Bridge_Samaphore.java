@@ -50,7 +50,7 @@ public class Bridge_Samaphore {
 			waiting[reverse(myDirection)]--;
 			active[reverse(myDirection)]++;
 		}
-		else if(active[myDirection]-1==0 && waiting[myDirection]>0)
+		else if( active[myDirection]-1==0 && waiting[myDirection]>0)
 		{ //if no cars on opposite direction, let all cars in my direction go
 			active[myDirection]--;
 			System.out.println(Thread.currentThread().getId()+" has leave bridge  direction: "+myDirection+" opposite waiting:"+waiting[reverse(myDirection)]+"  active:"+active[reverse(myDirection)]+"  myside: waiting"+waiting[myDirection]+"  active:"+active[myDirection]);
@@ -129,6 +129,7 @@ public class Bridge_Samaphore {
 		
 		}
 		t[num/3]=new Thread(new myThread(0,bridge));
+		t[num/2]=new Thread(new myThread(0,bridge));
 		for(int i=0;i<num;i++)
 		{
 			t[i].start();
@@ -145,8 +146,8 @@ public class Bridge_Samaphore {
 	}
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
-		test(20);
-		//testOneSide(10);
+		//test(20);
+		testOneSide(20);
 	}
 
 }

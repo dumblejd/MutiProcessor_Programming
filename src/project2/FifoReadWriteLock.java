@@ -155,8 +155,8 @@ public class FifoReadWriteLock implements ReadWriteLock {
 	{
 		FifoReadWriteLock f = new FifoReadWriteLock();
 		Thread a = new Thread(new MyThread(f,1));
-		Thread b = new Thread(new MyThread(f,0));
-		Thread c = new Thread(new MyThread(f,0));
+		Thread b = new Thread(new MyThread(f,1));
+		Thread c = new Thread(new MyThread(f,1));
 		Thread d = new Thread(new MyThread(f,0));
 		a.start();
 		b.start();
