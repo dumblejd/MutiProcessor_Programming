@@ -65,11 +65,11 @@ public class RunThis {
 //			avg =sum/temp.length;
 //			System.out.println("30 times tournament with thraed:"+i+", each time 1000000 times, avgerage time:"+avg);
 //		}
-		int td1=Integer.valueOf(args[0]);
-		int rq1=Integer.valueOf(args[1]);
-		int td2=Integer.valueOf(args[2]);
-		int rq2=Integer.valueOf(args[3]);
-		run.runBackery(td1,rq1);
-		run.runTournament(td2, rq2);
+//		int td1=Integer.valueOf(args[0]);
+//		int rq1=Integer.valueOf(args[1]);
+//		int td2=Integer.valueOf(args[2]);
+//		int rq2=Integer.valueOf(args[3]);
+		run.runBackery(4,10);
+		run.runTournament(4, 10);
 	}
 }

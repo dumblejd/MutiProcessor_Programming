@@ -3,12 +3,12 @@ package project2;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class Bridge_Samaphore {
+public class Bridge_Semaphore {
 	volatile int []waiting = new int[2];
 	volatile int []active = new int[2];
 	Semaphore []direction;
 	Semaphore mutex;;
-	Bridge_Samaphore(){
+	Bridge_Semaphore(){
 		waiting[0]=0;
 		waiting[1]=0;
 		active[0]=0;
@@ -23,18 +23,17 @@ public class Bridge_Samaphore {
 	public void arriveBridge(int myDirection) throws InterruptedException
 	{
 		mutex.acquire();
+		System.out.println(Thread.currentThread().getId()+" has arrived bridge  direction: "+myDirection);
 		if(active[reverse(myDirection)]>0||waiting[reverse(myDirection)]>0)
-		{ //need to wait
+		{ //need to wait if there are cars on opposite side
 			waiting[myDirection]++;
 			mutex.release();
 			direction[myDirection].acquire();
-			System.out.println(Thread.currentThread().getId()+" has arrived bridge  direction: "+myDirection+" opposite waiting:"+waiting[reverse(myDirection)]+"  active:"+active[reverse(myDirection)]+"  myside waiting:"+waiting[myDirection]+"  active:"+active[myDirection]);
 		}
 			
-		else 
+		else //only cars on one side
 		{
 			active[myDirection]++;
-			System.out.println(Thread.currentThread().getId()+" has arrived bridge  direction: "+myDirection+" opposite waiting:"+waiting[reverse(myDirection)]+"  active:"+active[reverse(myDirection)]+"  myside waiting:"+waiting[myDirection]+"  active:"+active[myDirection]);
 			mutex.release();
 		}
 		
@@ -42,29 +41,27 @@ public class Bridge_Samaphore {
 	public void leaveBridge(int myDirection) throws InterruptedException
 	{
 		mutex.acquire();
-		if(active[myDirection]-1==0 && waiting[reverse(myDirection)]>0)
-		{
+		System.out.println(Thread.currentThread().getId()+" has leave bridge  direction: "+myDirection);
+		if(active[myDirection]-1==0 && waiting[reverse(myDirection)]>0 && waiting[myDirection]>0)
+		{ // if there are cars on both sides let opposite direction go after this direction leave
 			active[myDirection]--;
-			System.out.println(Thread.currentThread().getId()+" has leave bridge  direction: "+myDirection+" opposite waiting:"+waiting[reverse(myDirection)]+"  active:"+active[reverse(myDirection)]+"  myside: waiting"+waiting[myDirection]+"  active:"+active[myDirection]);
 			direction[reverse(myDirection)].release(); //if there is one waiting on opposite direction, let it go
 			waiting[reverse(myDirection)]--;
 			active[reverse(myDirection)]++;
 		}
-		else if( active[myDirection]-1==0 && waiting[myDirection]>0)
-		{ //if no cars on opposite direction, let all cars in my direction go
+		else if( active[myDirection]-1==0 && waiting[reverse(myDirection)]>0 && waiting[myDirection]==0 )
+		{ //if no cars on my direction, let all cars in opposite direction go
 			active[myDirection]--;
-			System.out.println(Thread.currentThread().getId()+" has leave bridge  direction: "+myDirection+" opposite waiting:"+waiting[reverse(myDirection)]+"  active:"+active[reverse(myDirection)]+"  myside: waiting"+waiting[myDirection]+"  active:"+active[myDirection]);
-			while(waiting[myDirection]>0)
+			while(waiting[reverse(myDirection)]>0)
 			{
-				direction[myDirection].release();
-				active[myDirection]++;
-				waiting[myDirection]--;
+				direction[reverse(myDirection)].release();
+				active[reverse(myDirection)]++;
+				waiting[reverse(myDirection)]--;
 			}
 		}
-		else
+		else //if there is only cars on one side, just let it go
 		{
 			active[myDirection]--;
-			System.out.println(Thread.currentThread().getId()+" has leave bridge  direction: "+myDirection+" opposite waiting:"+waiting[reverse(myDirection)]+"  active:"+active[reverse(myDirection)]+"  myside: waiting"+waiting[myDirection]+"  active:"+active[myDirection]);
 		}
 		
 		mutex.release();
@@ -72,8 +69,8 @@ public class Bridge_Samaphore {
 	static class myThread implements Runnable
 	{
 		private int direction;
-		Bridge_Samaphore bridge;
-		public myThread(int direction,Bridge_Samaphore bridge)   //1 represent go  0 represent come
+		Bridge_Semaphore bridge;
+		public myThread(int direction,Bridge_Semaphore bridge)   //1 represent go  0 represent come
 		{
 			this.direction=direction;
 			this.bridge = bridge;
@@ -96,7 +93,7 @@ public class Bridge_Samaphore {
 	}
 	public static void test(int num)
 	{
-		Bridge_Samaphore bridge = new Bridge_Samaphore();
+		Bridge_Semaphore bridge = new Bridge_Semaphore();
 		Thread[] t = new Thread[num];
 		int dir=0;
 		for(int i=0;i<num;i++)
@@ -120,7 +117,7 @@ public class Bridge_Samaphore {
 	}
 	public static void testOneSide(int num)
 	{
-		Bridge_Samaphore bridge = new Bridge_Samaphore();
+		Bridge_Semaphore bridge = new Bridge_Semaphore();
 		Thread[] t = new Thread[num];
 	
 		for(int i=0;i<num;i++)
@@ -147,7 +144,7 @@ public class Bridge_Samaphore {
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 		//test(20);
-		testOneSide(20);
+		test(10);
 	}
 
 }
