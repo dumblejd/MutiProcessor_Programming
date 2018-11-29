@@ -1,0 +1,6 @@
+To run the code:
+1. Use javac runlist.java
+2. Use java runlist   <---it will run 10 threads with 100000 times for each
+It will show the expected list length and actual length.
+Expected length is based on ThreadLocal variable in each theread.
+

@@ -1,0 +1,139 @@
+s	public int replace_return_int(T oldItem, T newItem) {
+		// in order to test I set return value to the change of the list
+		int newkey = newItem.hashCode();
+		int oldkey = oldItem.hashCode();
+		if (newkey == oldkey) {
+			return 0;
+		}
+
+		while (true) {
+			Node<T> addpred = this.head;
+			Node<T> addcurr = head.next;
+			while (addcurr.key < newkey) {
+				addpred = addcurr;
+				addcurr = addcurr.next;
+			}
+			Node<T> delpred = this.head;
+			Node<T> delcurr = head.next;
+			while (delcurr.key < oldkey) {
+				delpred = delcurr;
+				delcurr = delcurr.next;
+			}
+			if (newkey < oldkey) { // lock the smaller one first to void deadlock
+
+				addpred.lock();
+				try {
+					addcurr.lock();
+					try {
+						delpred.lock();
+						try {
+							delcurr.lock();
+							try {
+								if (validate(addpred, addcurr) && validate(delpred, delcurr)) {
+									if (addcurr.key == newkey && delcurr.key != oldkey) {
+										// if there is a new key and there isn't an oldkey do nothing
+										return 0;
+									} else if (addcurr.key != newkey && delcurr.key != oldkey) {
+										// just add
+										Node<T> Node = new Node<>(newItem);
+										Node.pair = null;
+										Node.next = addcurr;
+										addpred.next = Node;
+										return 1;
+									} else if (addcurr.key == newkey && delcurr.key == oldkey) {
+										// just remove
+										delcurr.marked = true; // mark
+										delpred.next = delcurr.next; // physically remove
+										return -1;
+									} else { // if there isn't new node and there is an old node add then remove
+										// add
+										Node<T> Node = new Node<>(newItem);
+										Node.pair = delcurr;// it should be set before it insert into list
+										Node.next = addcurr;
+										addpred.next = Node;
+										// remove
+										delcurr.marked = true; // mark
+										if (delcurr.key == addcurr.key) {
+											Node.next = delcurr.next;// physically remove in condition window is the
+																		// same
+										} else {
+											delpred.next = delcurr.next; // physically remove
+										}
+										return 0;
+									}
+
+								} // vali
+							} finally {
+								delcurr.unlock();
+							}
+						} finally {
+							delpred.unlock();
+						}
+					} finally {
+						addcurr.unlock();
+					}
+				} finally {
+					addpred.unlock();
+				}
+			}
+
+			else if (newkey > oldkey)// lock the smaller one first to void deadlock
+
+			{
+
+				delpred.lock();
+				try {
+					delcurr.lock();
+					try {
+						addpred.lock();
+						try {
+							addcurr.lock();
+							try {
+								if (validate(addpred, addcurr) && validate(delpred, delcurr)) {
+									if (addcurr.key == newkey && delcurr.key != oldkey) {
+										// if there is a new key and there isn't an oldkey do nothing
+										return 0;
+									} else if (addcurr.key != newkey && delcurr.key != oldkey) {
+										// just add
+										Node<T> Node = new Node<>(newItem);
+										Node.pair = null;
+										Node.next = addcurr;
+										addpred.next = Node;
+										return 1;
+									} else if (addcurr.key == newkey && delcurr.key == oldkey) {
+										// just remove
+										delcurr.marked = true; // mark
+										delpred.next = delcurr.next; // physically remove
+										return -1;
+									} else { // if there isn't new node and there is an old node add then remove
+										// add
+										Node<T> Node = new Node<>(newItem);
+										Node.pair = delcurr;// it should be set before it insert into list
+										Node.next = addcurr;
+										addpred.next = Node;
+										// remove
+										delcurr.marked = true; // mark
+
+										delpred.next = delcurr.next; // physically remove
+
+										return 0;
+									}
+
+								}
+							} finally {
+								addcurr.unlock();
+							}
+						} finally {
+							addpred.unlock();
+						}
+					} finally {
+						delcurr.unlock();
+					}
+				} finally {
+					delpred.unlock();
+
+				}
+			}
+		}
+
+	}
